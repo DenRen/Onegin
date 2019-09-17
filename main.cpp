@@ -92,7 +92,7 @@ int main() {
     }
     char temp = '{';
 
-    printf("Hello. Do you want me to share nonsense with you? y/n");
+    printf("Hello. Want to get a super verse? y/n");
     scanf("%c", &temp);
     if (temp == 'y') {
         printf("\nHow many lines?\n");
