@@ -1,0 +1,1 @@
+/usr/bin/c++  -g   CMakeFiles/Onegin.dir/main.cpp.o  -o Onegin 
