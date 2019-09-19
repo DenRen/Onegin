@@ -7,8 +7,12 @@
 #IncludeRegexTransform: 
 
 /home/tester/CLionProjects/DED/Onegin/main.cpp
-iostream
+cstdio
 -
 unistd.h
+-
+sys/stat.h
+-
+cstdlib
 -
 
