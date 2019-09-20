@@ -6,15 +6,27 @@
 const int MAXSIZE = 200;
 const int MINLINE = 20;
 
+//#pragma pack(1)
+struct String_option {
+    char *pString;      // Указатель на начало строки
+    unsigned length;    // Длина строки
+};
+//#pragma pack(8)
+
 char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX = false);
 
 FILE *open_file(const char *name, unsigned long *file_size, bool UNIX);
 
-int Converter_for_Verse(char *buf, char **pointer_to_text);
+int Converter_for_Verse(char **buf, String_option **pointer_to_text);
 
 int main() {
     // Ввожу имена файлов ввода и вывода спеллчекер
-    const char name[] = "INPUT.txt", name_out[] = "OUTPUT.txt";
+
+    const char name[] = "Test_File.txt", name_out[] = "OUTPUT.txt";
+    /*FILE *f = fopen(name_out, "w");
+    char bufff[] = "ABC\0HOF";
+    fwrite(bufff, sizeof(char), 8, f);
+    return 0;*/
 
     // Копирую файл name в беффер и проверяю ошибки
     int state_func_ReadFile = 0;
@@ -23,8 +35,11 @@ int main() {
         printf("\n" "main: ERROR in Read_File_To_Buffer: %d\n", state_func_ReadFile);
         return 0;
     }
+    printf("%s\n"
+           "---------------------------\n", buf);
+    String_option *temp[5];
+    int state_Converter = Converter_for_Verse(&buf, temp);
     printf("%s", buf);
-    
     return 0;
     const char temp_name[] = "Test_File.txt";
     int state = 0;
@@ -33,48 +48,120 @@ int main() {
     return 0;
 }
 
-char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
-    // Сам очистит буффер при ошибке
-    // state_func == 0 ошибки отсутствуют
-    // state_func == 1 файл пустой
-    // state_func == 2 ошибка чтения или записи в файл
-
-    unsigned long file_size = 0;
-    bool error_read = 0;
-    FILE *file = open_file(name, &file_size, UNIX);
-
-    if (file_size == 0) {
-        *state_func = 1;
-        return nullptr;
-    }
-
-    char *buf = (char *) calloc(file_size, sizeof(char));
-    if (fread(buf, sizeof(char), file_size, file) != file_size) {
-        if (feof(file)) {
-            printf("Read_File_To_Buffer: Error fread file %s\n"
-                   "feof(%s) == 1\n", name, name);
-            error_read = true;
-        } else if (ferror((file))) {
-            printf("Read_File_To_Buffer: Error fread file %s\n"
-                   "ferror(%s) == 1\n", name, name);
-            error_read = true;
-        }
-    }
-
-    fclose(file);
-
-    if (error_read) {
-        *state_func = 2;
-        return nullptr;
-    }
-
-    *state_func = 0;
-    return buf;
+bool is_letter(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-int Converter_for_Verse(char *buf, char **pointer_to_text) {
+bool is_numb_letter(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
+}
+
+bool is_punct_mark(char c) {
+    return c == ',' || c == '.' || c == '!' || c == '?' || c == ';' || c == '(' || c == ')';
+}
+
+bool is_addi_space(char c) {
+    return c == '\t' || c == '\v' || c == '\r';
+}
+
+bool is_numb(char c) {
+    return c >= '0' && c <= '9';
+}
+
+int Converter_for_Verse(char **buf, String_option **pointer_to_text) {
     // При ошибке конвертирования автоматически освобождается
-    // память выделанная на pointer_text
+    // память выделанная на pointer_text и возвращается 0
+    //
+    // После долгих размышлений, пришёл к выводу, что не буду заменять
+    // \n на \0 во всём тексте. Просто когда мне понадобится вывести,
+    // к примеру, строку я вызову fwrite с указанием необходимой длины,
+    // которую я получу из struct String
+
+    // Не учитываются {...}, (...), number ..., double \n, и is_punct_mark
+    // Не учитываются строки меньше MINLINE
+    // Не учитываются строки, которые начинаются с цифры
+    // Сначала конвертируем buf
+    bool back_n = true, brace = false, bracket = false;
+    unsigned size_pointerString = 0;
+    char *pRead = *buf, *pWrite = *buf, temp;
+
+    // Для строк строго меньше MINLINE
+    char *save_write = *buf;
+    unsigned size_string = 0;
+
+    for (; *pRead != '\0'; pRead++) {
+        temp = *pRead;
+
+        // Проверки на цифры
+        if (is_numb(temp)) {
+            while (*pRead++ != '\n')
+                if (*pRead == '\0')
+                    break;
+            size_string = 0;
+            pWrite = save_write;
+            pRead -= 2;
+            continue;
+        }
+        // Проверки на {} и ()
+        if (brace) {
+            if (temp != '}') {
+                pWrite = save_write;
+                continue;
+            } else {
+                brace = false;
+                continue;
+
+            }
+        } else if (bracket) {
+            if (temp != ')') {
+                pWrite = save_write;
+                continue;
+            } else {
+                bracket = false;
+                continue;
+
+            }
+        }
+
+        if (temp == '{') {
+            brace = true;
+            continue;
+        } else if (temp == '(') {
+            bracket = true;
+            continue;
+        }
+
+        if (!is_addi_space(temp)) {
+            if (temp == '\n') {
+                if (!back_n) {
+                    back_n = true;
+                    *pWrite++ = temp;
+                }
+            } else if (temp == ' ') {
+                if (!back_n)
+                    *pWrite++ = temp;
+            } else {
+                if (back_n) {
+                    if (size_string < MINLINE) {
+                        pWrite = save_write;
+                    } else {
+                        save_write = pWrite;
+                    }
+                    size_string = 0;
+                    back_n = false;
+                }
+                size_string++;
+                *pWrite++ = temp;
+            }
+        }
+    }
+    *pWrite = '\0';
+    size_t i = ((pWrite - *buf)) + 100;
+    *buf = (char *) realloc(*buf, i * sizeof(char));
+    if (*buf == nullptr) {
+        printf("\n" "ERROR Converter_for_Verse realloc: buf == nullptr\n");
+        return 0;
+    }
     return 0;
 }
 
@@ -152,4 +239,44 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
         }
     }
     return file;
+}
+
+
+char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
+    // Сам очистит буффер при ошибке
+    // state_func == 0 ошибки отсутствуют
+    // state_func == 1 файл пустой
+    // state_func == 2 ошибка чтения или записи в файл
+
+    unsigned long file_size = 0;
+    bool error_read = 0;
+    FILE *file = open_file(name, &file_size, UNIX);
+
+    if (file_size == 0) {
+        *state_func = 1;
+        return nullptr;
+    }
+
+    char *buf = (char *) calloc(file_size, sizeof(char));
+    if (fread(buf, sizeof(char), file_size, file) != file_size) {
+        if (feof(file)) {
+            printf("Read_File_To_Buffer: Error fread file %s\n"
+                   "feof(%s) == 1\n", name, name);
+            error_read = true;
+        } else if (ferror((file))) {
+            printf("Read_File_To_Buffer: Error fread file %s\n"
+                   "ferror(%s) == 1\n", name, name);
+            error_read = true;
+        }
+    }
+
+    fclose(file);
+
+    if (error_read) {
+        *state_func = 2;
+        return nullptr;
+    }
+
+    *state_func = 0;
+    return buf;
 }
