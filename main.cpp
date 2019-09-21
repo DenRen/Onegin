@@ -55,14 +55,9 @@ int main() {
         return 0;
     }
 
-
-    //qsort(sentences, caunt_sentences, sizeof(String_option), comp1);
-    printf("%s", sentences[0].pString);
-
-    printf("%s %d" ,sentences->pString, sentences[0].length);
-    for (int i = 0; i < caunt_sentences; i++) {
+    qsort(sentences, caunt_sentences, sizeof(String_option), comp2);
+    for (int i = 0; i < caunt_sentences; i++)
         fwrite(sentences[i].pString, sizeof(char), sentences[i].length, stdout);
-    }
 
     fclose(f);
     return 0;
@@ -74,10 +69,6 @@ bool is_numb_letter(char c) {
 
 bool is_addi_space(char c) {
     return c == '\t' || c == '\v' || c == '\r';
-}
-
-bool is_numb(char c) {
-    return c >= '0' && c <= '9';
 }
 
 char lower(char c) {
@@ -217,14 +208,13 @@ int Converter_for_Verse(char *buf, struct String_option **pointer_to_text) {
     unsigned number_pRead = 0, length_sentence = 1;
     for (pRead = buf; *pRead != '\0'; pRead++, length_sentence++) {
         if (*pRead == '\n') {
-            char *stemp =  pRead - length_sentence + 1;
-            pointer_to_text[number_pRead]->pString = pRead - length_sentence + 1;
-            pointer_to_text[number_pRead]->length = length_sentence+1;
+            char *stemp = pRead - length_sentence + 1;
+            (*(*pointer_to_text + number_pRead)).pString = pRead - length_sentence + 1;
+            (*(*pointer_to_text + number_pRead)).length = length_sentence;
             number_pRead++;
             length_sentence = 0;
         }
     }
-    printf("LOL %s", pointer_to_text[number_pRead]->pString);
 
     if (size_pointerString == 0) {
         free(buf);
