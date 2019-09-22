@@ -15,4 +15,8 @@ sys/stat.h
 -
 cstdlib
 -
+ctime
+-
+cstring
+-
 
