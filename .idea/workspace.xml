@@ -13,7 +13,7 @@
   <component name="ChangeListManager">
     <list default="true" id="45a0b05e-aa18-4d51-bd77-ec1448db725f" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cmake-build-debug/OUTPUT.txt" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/OUTPUT.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Onegin.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Onegin.dir/CXX.includecache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Onegin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Onegin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
     </list>
@@ -109,7 +109,10 @@
       <workItem from="1569172929437" duration="733000" />
       <workItem from="1569223920555" duration="24000" />
       <workItem from="1569228845611" duration="298000" />
-      <workItem from="1569263626308" duration="4198000" />
+      <workItem from="1569263626308" duration="4979000" />
+      <workItem from="1569271501593" duration="1455000" />
+      <workItem from="1569272968548" duration="2000" />
+      <workItem from="1569272997862" duration="28000" />
     </task>
     <servers />
   </component>

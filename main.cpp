@@ -5,6 +5,7 @@
 #include <ctime>
 #include <cstring>
 #include <cassert>
+#include <sys/sysinfo.h>
 
 const int MINLINE = 20;
 
@@ -246,12 +247,14 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
 //! Fully copies from a file named "name" to  RAM
 //! Itself clears the buffer on error. At the end it puts '\n' '\0' for easy conversion
 //! \param [in] name source file name
-//! \param [in] state_func 0 no errors, 1 file is empty, 2 error reading or writing to the file
+/*! \param [in] state_func 0 no errors, 1 file is empty, 2 error reading or writing to the file,
+ *  3 not enough RAM for reading text.
+*/
 //! \param [in] UNIX find out the size in style UNIX
 //!
 //! \return pointer to buffer with text
 char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
-
+    const unsigned amount_of_free_RAM = 300; //MB
     assert(name != nullptr);
     assert(state_func != nullptr);
 
@@ -260,6 +263,7 @@ char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
     // state_func == 0 ошибки отсутствуют
     // state_func == 1 файл пустой
     // state_func == 2 ошибка чтения или записи в файл
+    // state_func == 3 не хватает оперативной памяти для считывания текста
 
     unsigned long file_size = 0;
     bool error_read = false;
@@ -271,6 +275,15 @@ char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
         return nullptr;
     }
 
+    // Проверка на наличие RAM для buf
+    struct sysinfo info {};
+    sysinfo(&info);
+    if (info.freeram / (1024*1024) - file_size < amount_of_free_RAM) {
+        printf("Read_File_To_Buffer: ERROR Not enough RAM for reading text");
+        fclose(file);
+        *state_func = 3;
+        return nullptr;
+    }
     // В buf будет храниться весь файл name + знак '\0'
     char *buf = (char *) calloc(file_size + 1, sizeof(char));
     if (fread(buf, sizeof(char), file_size, file) != file_size) {
