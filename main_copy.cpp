@@ -4,7 +4,6 @@
 #include <cstdlib>
 #include <ctime>
 #include <cstring>
-#include <cassert>
 
 const int MINLINE = 20;
 
@@ -53,9 +52,6 @@ int main() {
 //! \param [in] generator whether to turn on a BreDoGenerator
 //! \return State program: 0 - all rigth, all the rest - error state
 int program_Onegin(const char *name, const char *name_out, const bool generator = false) {
-
-    assert(name != nullptr);
-    assert(name_out != nullptr);
 
     const char *separator = "\n" "--------------------------------\n";
 
@@ -206,9 +202,6 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
     // То есть: !(UNIX) => UNIX == false
     // --------------------------------------------------------------------
 
-    assert(name != nullptr);
-    assert(file_size != nullptr);
-
     FILE *file = nullptr;
     if (UNIX) { // Узнаём размер будучи в ОС на UNIX
         if (!access(name, 3) || !access(name, 4)) {  // Проверим доступность файла
@@ -251,10 +244,6 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
 //!
 //! \return pointer to buffer with text
 char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
-
-    assert(name != nullptr);
-    assert(state_func != nullptr);
-
     // Сам очистит буффер при ошибке
     // В конце ставит \n \0 для удобства конвертирования
     // state_func == 0 ошибки отсутствуют
@@ -324,9 +313,6 @@ int Converter_for_Verse(char *buf, struct String_option **pointer_to_text) {
 
     // Не учитываются double \n и is_addi_space
 
-    assert(buf != nullptr);
-    assert(pointer_to_text != nullptr);
-
     char *pRead = buf, *pWrite = buf, *save_write = buf, temp = 0;
     size_t size_string = 0, size_pointerString = 0;
     bool back_n = true;
@@ -372,21 +358,7 @@ int Converter_for_Verse(char *buf, struct String_option **pointer_to_text) {
     // Создаём массив указателей на структуры String_option
 
     *pointer_to_text = (struct String_option *) calloc(size_pointerString, sizeof(struct String_option));
-    pRead = strchr(buf, '\n');
     unsigned number_pRead = 0, length_sentence = 1;
-
-/*    (*pointer_to_text)[0].pString = pRead - length_sentence + 1;
-    (*pointer_to_text)[0].length = length_sentence;
-    size_t len = 0;
-    for (pRead = strchr(buf, '\n'); pRead; pRead = strchr(pRead+1, '\n')) {
-        len = pRead - buf + 1 - length_sentence;
-        (*pointer_to_text)[number_pRead].length = len;
-        (*pointer_to_text)[number_pRead].pString = pRead - len + 1;
-        length_sentence += len;
-        number_pRead++;
-    }
-*/
-
     for (pRead = buf; *pRead != '\0'; pRead++, length_sentence++) {
         if (*pRead == '\n') {
             char *stemp = pRead - length_sentence + 1;
@@ -414,10 +386,6 @@ int Converter_for_Verse(char *buf, struct String_option **pointer_to_text) {
 
 int comparison_str(String_option *structString1, String_option *structString2) {
     // Считается, что "aaa" < "aaaa"
-    assert(structString1 != nullptr);
-    assert(structString2 != nullptr);
-
-    assert(structString1 != structString2);
     char *ptrStr1 = structString1->pString, *ptrStr2 = structString2->pString;
     while (true) {
         while (!is_numb_letter(*ptrStr1) && *ptrStr1 != '\n')
@@ -444,10 +412,6 @@ int comparison_str(String_option *structString1, String_option *structString2) {
 
 int comparison_str_rev(String_option *structString1, String_option *structString2) {
     // Считается, что "aaa" < "aaaa"
-    assert(structString1 != nullptr);
-    assert(structString2 != nullptr);
-    assert(structString1 != structString2);
-
     char *ptrStr1 = structString1->pString + structString1->length - 2;
     char *ptrStr2 = structString2->pString + structString2->length - 2;
 
