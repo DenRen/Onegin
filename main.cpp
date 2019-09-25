@@ -6,8 +6,11 @@
 #include <cstring>
 #include <cassert>
 #include <sys/sysinfo.h>
+#include <cctype>
 
 const int MINLINE = 20;
+
+//namespace my
 
 //#pragma pack(1)
 struct String_option {
@@ -26,6 +29,8 @@ int comparison_str_rev(String_option *structString1, String_option *structString
 
 int comparison_str(String_option *structString1, String_option *structString2);
 
+int find_sent_quantity(String_option *sentences, int caunt_sentences, int quantity, char last_better);
+
 int comp1(const void *String1, const void *String2) {
     return comparison_str((String_option *) String1, (String_option *) String2);
 }
@@ -38,11 +43,31 @@ bool is_numb(char c);
 
 int program_Onegin(const char *name, const char *name_out, bool generator);
 
+void generatorOnegin(String_option *sentences, int caunt_sentences);
+
 int main() {
-    const char name[] = "INPUT.txt", name_out[] = "OUTPUT.txt";
+    const char name[] = "INPUT1.txt", name_out[] = "OUTPUT1.txt";
     const bool BREDO_generate = true;
     printf("\n" "State program Onegin: %d\n", program_Onegin(name, name_out, BREDO_generate));
     return 0;
+}
+
+bool is_numb(char c) {
+    return (c >= '0' && c <= '9');
+}
+
+bool is_numb_letter(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
+}
+
+bool is_addi_space(char c) {
+    return c == '\t' || c == '\v' || c == '\r';
+}
+
+char lower(char c) {
+    if (c >= 'A' && c <= 'Z')
+        return c + 'a' - 'A';
+    return c;
 }
 
 //! This function read a file named name and in file named name_out write
@@ -61,7 +86,7 @@ int program_Onegin(const char *name, const char *name_out, const bool generator 
     const char *separator = "\n" "--------------------------------\n";
 
     printf("Program Onegin started.\n\nHello my friend! \n"
-           "To a file named %s three texts will be written:\n"
+           "This program writes three texts to a file named %s:\n"
            "sorted left, sorted right and source text\n"
            "from a file named %s" "\n\n", name_out, name);
 
@@ -102,10 +127,10 @@ int program_Onegin(const char *name, const char *name_out, const bool generator 
 
     // Сортирую с конца строки и записываю в фаwhether to includeйл
     qsort(sentences, caunt_sentences, sizeof(String_option), comp2);
-    for (int i = 0; i < caunt_sentences; i++)
+    for (int i = 0; i < caunt_sentences; i++) // kill
         fwrite(sentences[i].pString, sizeof(char), sentences[i].length, f_out);
 
-    fwrite(separator, sizeof(char), 34, f_out);
+    fwrite(separator, sizeof(char), 34, f_out); // this is krivo
 
     size_t number_chars_in_buf = 0;
     for (int i = 0; i < caunt_sentences; i++)
@@ -113,13 +138,83 @@ int program_Onegin(const char *name, const char *name_out, const bool generator 
 
     fwrite(buf, sizeof(char), number_chars_in_buf, f_out);
 
-    if (generator) {
-        char temp_char = '{';
+    if (generator || 1)
+        generatorOnegin(sentences, caunt_sentences);
 
-        printf("Want to get a super verse? y/n ");
-        scanf("%c", &temp_char);
 
-        if (temp_char == 'y') {
+    free(sentences);
+    free(buf);
+    fclose(f_out);
+    return 0;
+}
+
+char Last_letter(String_option *sentences, int number) {
+    char *i = sentences[number].pString + sentences[number].length - 1;
+    while (!is_numb_letter(*--i));
+    return *i;
+}
+
+int find_sent_quantity(String_option *sentences, int caunt_sentences, int quantity, char last_better) {
+    // Предполгается, что такие строчки есть в sentences
+    srand(time(nullptr));
+    int random = 0, down = 0, up = 0, temp_quantity = quantity;
+    do {
+        up = down = 0;
+        random = rand() % (caunt_sentences);
+        if (Last_letter(sentences, random - up) == last_better)
+            continue;
+        char current_letter = Last_letter(sentences, random - up);
+        quantity = temp_quantity;
+        char c;
+        while (random + down < caunt_sentences && quantity != 0) {
+            down++;
+            char c = Last_letter(sentences, random + down);
+            if (c == current_letter)
+                quantity--;
+            else {
+                down--;
+                break;
+            }
+        }
+
+        while (random - up > 0 && quantity != 0) {
+            up++;
+            if (Last_letter(sentences, random - up) == last_better) {
+                quantity--;
+            } else {
+                up--;
+                break;
+            }
+        }
+
+    } while (quantity != 0);
+    return random - up;
+}
+
+char *strof_creator(String_option *sentences, int *Array_Macros, char *MACROS) {
+    const int max_size_sentences = 40;
+    int len_MACROS = strlen(MACROS), temp = 0, num_buf = 0;
+    char *buf_strof = (char *) calloc(len_MACROS, sizeof(char) * max_size_sentences);
+    for (int i = 0; i < len_MACROS; i++) {
+        temp = MACROS[i] - 'A';
+        char *p = sentences[Array_Macros[temp]].pString - 1;
+        while ((buf_strof[num_buf++] = *++p) != '\n');
+        Array_Macros[temp] += sizeof(String_option);
+    }
+    buf_strof = (char *) realloc(buf_strof, --num_buf);
+    return buf_strof;
+}
+
+void generatorOnegin(String_option *sentences, int caunt_sentences) {
+    char temp_char = '{';
+
+    printf("Want to get a super verse? y/n ");
+    scanf("%c", &temp_char);
+
+    if (temp_char == 'y') {
+        printf("Rap or Onegin's verse? r/o ");
+        scanf("\n%c", &temp_char);
+        if (temp_char == 'r') {
             printf("\nHow many lines?\n");
             unsigned line = 0;
             if (scanf("%d", &line) == 1) {
@@ -154,38 +249,33 @@ int program_Onegin(const char *name, const char *name_out, const bool generator 
                     fwrite(sentences[i].pString, sentences[i].length, sizeof(char), stdout);
 
                 }
-
-            } else {
-                printf("I don’t understand you. Bye see you later\n");
             }
+        } else if (temp_char == 'o') {
+            /*  A : 2, B : 6, C : 4, D : 2
+             *  ABAB CCBB DCCD BB - Онегинская строфа
+             * */
+            const int size_Array_Macros = 4;
+            int Array_quant_Macros[size_Array_Macros] = {2, 6, 4, 2},
+                    Array_Macros[size_Array_Macros] = {0};
+            char MACROS[] = "ABABCCBBDCCDBB";
+            char last_better = '{';
+            for (int i = 0; i < size_Array_Macros; i++) {
+                // Получаем номер предложений, концы которых не повторяются с предыдущими
+                Array_Macros[i] = find_sent_quantity(sentences, caunt_sentences, Array_quant_Macros[i], last_better);
+
+                last_better = Last_letter(sentences, Array_Macros[i]);
+            }
+
+            char *verse_Onegin_with_strof = strof_creator(sentences, Array_Macros, MACROS);
+            printf("\n%s\n", verse_Onegin_with_strof);
         } else {
-            printf("Okey :(\n");
+            printf("I don’t understand you. Bye, see you later.\n");
         }
+    } else {
+        printf("Okey :(\n");
     }
-
-    free(sentences);
-    free(buf);
-    fclose(f_out);
-    return 0;
 }
 
-bool is_numb(char c) {
-    return (c >= '0' && c <= '9');
-}
-
-bool is_numb_letter(char c) {
-    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
-}
-
-bool is_addi_space(char c) {
-    return c == '\t' || c == '\v' || c == '\r';
-}
-
-char lower(char c) {
-    if (c >= 'A' && c <= 'Z')
-        return c + 'a' - 'A';
-    return c;
-}
 
 //! This function tries to open the file. She can do this in two ways.
 //! On a UNIX system, you can check for existence and accessibility
@@ -211,8 +301,10 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
     assert(file_size != nullptr);
 
     FILE *file = nullptr;
+
     if (UNIX) { // Узнаём размер будучи в ОС на UNIX
         if (!access(name, 3) || !access(name, 4)) {  // Проверим доступность файла
+
             if ((file = fopen(name, "r")) != nullptr) {
                 fseek(file, 0, SEEK_END);
                 *file_size = ftell(file);
@@ -220,6 +312,7 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
             } else {
                 printf("\n""ERROR open_file UNIX: %s nullptr \n", name);
             }
+
         } else {
             printf("\n""ERROR open_file UNIX: "
                    "the file %s is ", name);
@@ -228,7 +321,9 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
             else
                 printf("access is denied\n");
         }
+
     } else {    // Узнаём размер будучи в ОС на Windows
+
         if ((file = fopen(name, "rb")) != nullptr) {
             struct stat file_specification{};
             if (!fstat(fileno(file), &file_specification)) {
@@ -239,6 +334,7 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
         } else {
             printf("\n""ERROR open_file: "
                    "the file %s is either not present or access is denied\n", name);
+            perror("meow");
         }
     }
     return file;
@@ -255,8 +351,9 @@ FILE *open_file(const char *name, unsigned long *file_size, bool UNIX = false) {
 //! \return pointer to buffer with text
 char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
     const unsigned amount_of_free_RAM = 300; //MB
-    assert(name != nullptr);
-    assert(state_func != nullptr);
+
+    assert (name != nullptr);
+    assert (state_func != nullptr);
 
     // Сам очистит буффер при ошибке
     // В конце ставит \n \0 для удобства конвертирования
@@ -271,14 +368,14 @@ char *Read_File_To_Buffer(const char *name, int *state_func, bool UNIX) {
 
     if (file_size == 0) {
         *state_func = 1;
-        fclose(file);
+        if (file) fclose(file);
         return nullptr;
     }
 
     // Проверка на наличие RAM для buf
-    struct sysinfo info {};
+    struct sysinfo info = {}; // The toopenkiy CLion cannot handle it :((
     sysinfo(&info);
-    if (info.freeram / (1024*1024) - file_size < amount_of_free_RAM) {
+    if (info.freeram / (1024 * 1024) - file_size < amount_of_free_RAM) {
         printf("Read_File_To_Buffer: ERROR Not enough RAM for reading text");
         fclose(file);
         *state_func = 3;

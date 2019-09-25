@@ -12,6 +12,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="45a0b05e-aa18-4d51-bd77-ec1448db725f" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Onegin.dir/CXX.includecache" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/CMakeFiles/Onegin.dir/CXX.includecache" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cmake-build-debug/Onegin" beforeDir="false" afterPath="$PROJECT_DIR$/cmake-build-debug/Onegin" afterDir="false" />
@@ -113,6 +114,8 @@
       <workItem from="1569271501593" duration="1455000" />
       <workItem from="1569272968548" duration="2000" />
       <workItem from="1569272997862" duration="28000" />
+      <workItem from="1569274007965" duration="4608000" />
+      <workItem from="1569406482379" duration="15557000" />
     </task>
     <servers />
   </component>
@@ -131,5 +134,16 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/main.cpp</url>
+          <line>263</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
