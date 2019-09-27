@@ -46,7 +46,7 @@ int program_Onegin(const char *name, const char *name_out, bool generator);
 void generatorOnegin(String_option *sentences, int caunt_sentences);
 
 int main() {
-    const char name[] = "INPUT1.txt", name_out[] = "OUTPUT1.txt";
+    const char name[] = "INPUT.txt", name_out[] = "OUTPUT.txt";
     const bool BREDO_generate = true;
     printf("\n" "State program Onegin: %d\n", program_Onegin(name, name_out, BREDO_generate));
     return 0;
@@ -138,7 +138,7 @@ int program_Onegin(const char *name, const char *name_out, const bool generator 
 
     fwrite(buf, sizeof(char), number_chars_in_buf, f_out);
 
-    if (generator || 1)
+    if (generator)
         generatorOnegin(sentences, caunt_sentences);
 
 
